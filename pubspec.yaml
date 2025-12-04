@@ -1,0 +1,70 @@
+name: dating_app
+description: A Flutter dating app with real-time chat
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.4.0
+  riverpod_annotation: ^2.3.0
+
+  # Networking
+  dio: ^5.4.0
+
+  # WebSocket & Chat
+  stomp_dart_client: ^1.0.0
+  web_socket_channel: ^2.4.0
+
+  # Firebase
+  firebase_messaging: ^14.7.0
+  firebase_core: ^2.24.0
+
+  # Navigation
+  go_router: ^13.0.0
+
+  # Code Generation
+  freezed_annotation: ^2.4.0
+  json_annotation: ^4.8.0
+
+  # Image
+  cached_network_image: ^3.3.0
+  image_picker: ^1.0.0
+
+  # Storage
+  shared_preferences: ^2.2.0
+  flutter_secure_storage: ^9.0.0
+
+  # UI
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+  # Code Generation
+  build_runner: ^2.4.0
+  freezed: ^2.4.0
+  json_serializable: ^6.7.0
+  riverpod_generator: ^2.3.0
+  riverpod_lint: ^2.3.0
+
+flutter:
+  uses-material-design: true
+
+  # assets:
+  #   - images/
+  #   - icons/
+
+  # fonts:
+  #   - family: Pretendard
+  #     fonts:
+  #       - asset: fonts/Pretendard-Regular.ttf
+  #       - asset: fonts/Pretendard-Bold.ttf
+  #         weight: 700

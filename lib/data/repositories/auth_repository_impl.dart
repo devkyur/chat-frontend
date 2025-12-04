@@ -1,0 +1,62 @@
+import '../../core/constants/api_constants.dart';
+import '../../core/utils/secure_storage.dart';
+import '../../domain/entities/user.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../datasources/auth_api.dart';
+import '../datasources/profile_api.dart';
+
+class AuthRepositoryImpl implements AuthRepository {
+  final AuthApi _authApi;
+  final ProfileApi _profileApi;
+
+  AuthRepositoryImpl(this._authApi, this._profileApi);
+
+  @override
+  Future<User> signup({
+    required String email,
+    required String password,
+    required String nickname,
+  }) async {
+    final userModel = await _authApi.signup(
+      email: email,
+      password: password,
+      nickname: nickname,
+    );
+    return userModel.toEntity();
+  }
+
+  @override
+  Future<User> login({
+    required String email,
+    required String password,
+  }) async {
+    final userModel = await _authApi.login(
+      email: email,
+      password: password,
+    );
+    return userModel.toEntity();
+  }
+
+  @override
+  Future<void> logout() async {
+    await _authApi.logout();
+  }
+
+  @override
+  Future<User?> getCurrentUser() async {
+    try {
+      final token = await SecureStorage.read(ApiConstants.accessTokenKey);
+      if (token == null) return null;
+
+      final userModel = await _profileApi.getMyProfile();
+      return userModel.toEntity();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<String> refreshToken() async {
+    throw UnimplementedError('Token refresh is handled by DioClient');
+  }
+}

@@ -1,0 +1,205 @@
+# Dating App Frontend
+
+## 기술 스택
+- Flutter 3.x + Dart
+- Riverpod (상태관리)
+- Dio (HTTP)
+- web_socket_channel + STOMP (실시간 채팅)
+- Firebase Cloud Messaging (푸시)
+- 배포: Android/iOS/Web 동시 빌드
+
+## 프로젝트 구조
+
+```
+lib/
+├── core/
+│   ├── constants/       # API URL, 키 상수
+│   ├── theme/           # 색상, 폰트, 공통 스타일
+│   ├── router/          # GoRouter 설정
+│   └── utils/           # 헬퍼 함수
+├── data/
+│   ├── datasources/     # API 호출, WebSocket
+│   ├── repositories/    # Repository 구현체
+│   └── models/          # JSON 직렬화 모델
+├── domain/
+│   ├── entities/        # 순수 도메인 객체
+│   └── repositories/    # Repository 인터페이스
+├── presentation/
+│   ├── providers/       # Riverpod Provider
+│   ├── screens/         # 화면 위젯
+│   └── widgets/         # 재사용 위젯
+└── main.dart
+```
+
+## 핵심 규칙
+
+### 계층 분리
+- **presentation**: UI + Provider. 비즈니스 로직 금지
+- **domain**: 순수 Dart. Flutter 의존성 금지
+- **data**: 외부 통신. domain 인터페이스 구현
+
+### 상태관리 (Riverpod)
+- 서버 상태: `AsyncNotifierProvider` (API 호출)
+- UI 상태: `StateNotifierProvider` (로컬 상태)
+- 단순 값: `Provider` (계산된 값)
+
+```dart
+// 예시: 인증 상태
+@riverpod
+class Auth extends _$Auth {
+  @override
+  FutureOr<User?> build() => _loadUser();
+
+  Future<void> login(String email, String password) async { ... }
+  Future<void> logout() async { ... }
+}
+```
+
+### Dio 설정
+- BaseUrl: 환경별 분리
+- 인터셉터: JWT 자동 첨부, 401 시 토큰 갱신, 에러 핸들링
+
+```dart
+// 인터셉터 핵심 로직
+onRequest: (options, handler) {
+  options.headers['Authorization'] = 'Bearer $accessToken';
+  handler.next(options);
+}
+
+onError: (error, handler) {
+  if (error.response?.statusCode == 401) {
+    // refresh 시도 → 실패 시 로그인 화면
+  }
+}
+```
+
+### 모델
+- `freezed` + `json_serializable` 사용
+- Request/Response 모델 분리
+
+```dart
+@freezed
+class UserResponse with _$UserResponse {
+  factory UserResponse({
+    required int id,
+    required String email,
+    required String nickname,
+  }) = _UserResponse;
+
+  factory UserResponse.fromJson(Map<String, dynamic> json) =>
+      _$UserResponseFromJson(json);
+}
+```
+
+### WebSocket (채팅)
+- STOMP 프로토콜
+- 연결 끊김 시 Exponential Backoff 재연결
+- 앱 포그라운드/백그라운드 상태 관리
+
+```dart
+// 구독
+stompClient.subscribe('/topic/chat/$roomId', (frame) {
+  final message = ChatMessage.fromJson(jsonDecode(frame.body!));
+  // 상태 업데이트
+});
+
+// 발행
+stompClient.send(
+  destination: '/app/chat/$roomId/send',
+  body: jsonEncode(message.toJson()),
+);
+```
+
+### 이미지 업로드
+1. `GET /uploads/presigned-url` → URL 받기
+2. `PUT` 으로 R2 직접 업로드
+3. 업로드된 URL을 프로필 저장 API에 전달
+
+### 에러 처리
+- API 응답: `{ success, data, error }` 구조
+- 공통 에러 핸들링 → 스낵바 or 다이얼로그
+
+```dart
+// 공통 응답 모델
+class ApiResponse<T> {
+  final bool success;
+  final T? data;
+  final ApiError? error;
+}
+```
+
+## 화면 흐름
+
+```
+Splash → Auth Check
+         ├── 토큰 없음 → Login/Signup
+         └── 토큰 있음 → Main
+                        ├── Home (매칭 카드)
+                        ├── Chat (채팅 목록)
+                        └── Profile (내 프로필)
+```
+
+## Backend API
+
+### Base
+- URL: `https://{domain}/api/v1`
+- 인증: `Authorization: Bearer {accessToken}`
+
+### 주요 엔드포인트
+```
+POST   /auth/signup, /auth/login, /auth/refresh, /auth/logout
+GET    /profiles/me
+PATCH  /profiles/me
+GET    /matches/candidates
+POST   /matches/{id}/like, /matches/{id}/pass
+GET    /chat/rooms
+GET    /chat/rooms/{roomId}/messages
+WS     /ws/chat
+```
+
+### 응답 형식
+```json
+{ "success": true, "data": { ... }, "error": null }
+{ "success": false, "data": null, "error": { "code": "U001", "message": "..." } }
+```
+
+## 네이밍 규칙
+
+| 대상 | 규칙 | 예시 |
+|------|------|------|
+| 파일 | snake_case | `login_screen.dart` |
+| 클래스 | PascalCase | `LoginScreen` |
+| 변수/함수 | camelCase | `userProfile` |
+| Provider | camelCase + Provider | `authProvider` |
+
+## 의존성 (pubspec.yaml)
+
+```yaml
+dependencies:
+  flutter_riverpod: ^2.4.0
+  riverpod_annotation: ^2.3.0
+  dio: ^5.4.0
+  stomp_dart_client: ^1.0.0
+  web_socket_channel: ^2.4.0
+  firebase_messaging: ^14.7.0
+  go_router: ^13.0.0
+  freezed_annotation: ^2.4.0
+  json_annotation: ^4.8.0
+  cached_network_image: ^3.3.0
+  image_picker: ^1.0.0
+
+dev_dependencies:
+  build_runner: ^2.4.0
+  freezed: ^2.4.0
+  json_serializable: ^6.7.0
+  riverpod_generator: ^2.3.0
+```
+
+## Git 커밋
+```
+feat: 기능 추가
+fix: 버그 수정
+refactor: 리팩토링
+style: UI/스타일 변경
+chore: 설정, 의존성
+```
