@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../domain/entities/chat_message.dart';
 import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
 
@@ -18,19 +19,6 @@ class ChatRoomScreen extends ConsumerStatefulWidget {
 class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    ref.listenManual(
-      chatMessageStreamProvider(widget.roomId),
-      (previous, next) {
-        next.whenData((message) {
-          ref.read(chatMessagesProvider(widget.roomId).notifier).addMessage(message);
-        });
-      },
-    );
-  }
 
   @override
   void dispose() {
@@ -62,6 +50,16 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   Widget build(BuildContext context) {
     final messagesAsync = ref.watch(chatMessagesProvider(widget.roomId));
     final currentUser = ref.watch(authProvider).value;
+
+    // Listen to real-time messages from WebSocket
+    ref.listen<AsyncValue<ChatMessage>>(
+      chatMessageStreamProvider(widget.roomId),
+      (previous, next) {
+        next.whenData((message) {
+          ref.read(chatMessagesProvider(widget.roomId).notifier).addMessage(message);
+        });
+      },
+    );
 
     return Scaffold(
       appBar: AppBar(

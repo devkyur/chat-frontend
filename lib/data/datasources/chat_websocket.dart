@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:stomp_dart_client/stomp_dart_client.dart';
+import 'package:flutter/foundation.dart';
+import 'package:stomp_dart_client/stomp.dart';
+import 'package:stomp_dart_client/stomp_config.dart';
+import 'package:stomp_dart_client/stomp_frame.dart';
 import '../../core/constants/api_constants.dart';
 import '../../core/utils/secure_storage.dart';
 import '../models/chat_message_model.dart';
@@ -8,7 +11,7 @@ import '../models/chat_message_model.dart';
 class ChatWebSocket {
   StompClient? _stompClient;
   final _messageController = StreamController<ChatMessageModel>.broadcast();
-  final Map<int, StreamSubscription> _subscriptions = {};
+  final Map<int, dynamic> _subscriptions = {};
   int _reconnectAttempts = 0;
   static const int _maxReconnectAttempts = 5;
 
@@ -27,8 +30,8 @@ class ChatWebSocket {
         url: ApiConstants.wsUrl,
         onConnect: _onConnect,
         onWebSocketError: (dynamic error) => _onError(error),
-        onStompError: (StompFrame frame) => _onStompError(frame),
-        onDisconnect: (StompFrame frame) => _onDisconnect(frame),
+        onStompError: _onStompError,
+        onDisconnect: _onDisconnect,
         webSocketConnectHeaders: {
           'Authorization': 'Bearer $token',
         },
@@ -46,12 +49,12 @@ class ChatWebSocket {
     if (_reconnectAttempts < _maxReconnectAttempts) {
       _reconnectAttempts++;
       final delay = Duration(seconds: 2 * _reconnectAttempts);
-      Future.delayed(delay, () => connect());
+      Future.delayed(delay, connect);
     }
   }
 
   void _onStompError(StompFrame frame) {
-    print('STOMP Error: ${frame.body}');
+    debugPrint('STOMP Error: ${frame.body}');
   }
 
   void _onDisconnect(StompFrame frame) {
@@ -70,20 +73,23 @@ class ChatWebSocket {
             final message = ChatMessageModel.fromJson(json);
             _messageController.add(message);
           } catch (e) {
-            print('Error parsing message: $e');
+            debugPrint('Error parsing message: $e');
           }
         }
       },
     );
 
     if (subscription != null) {
-      _subscriptions[roomId] = subscription as StreamSubscription;
+      _subscriptions[roomId] = subscription;
     }
   }
 
   void unsubscribeFromRoom(int roomId) {
-    _subscriptions[roomId]?.cancel();
-    _subscriptions.remove(roomId);
+    final subscription = _subscriptions[roomId];
+    if (subscription != null) {
+      subscription.unsubscribe();
+      _subscriptions.remove(roomId);
+    }
   }
 
   void sendMessage(int roomId, String content) {
@@ -101,7 +107,7 @@ class ChatWebSocket {
 
   Future<void> disconnect() async {
     for (var subscription in _subscriptions.values) {
-      await subscription.cancel();
+      subscription.unsubscribe();
     }
     _subscriptions.clear();
     _stompClient?.deactivate();

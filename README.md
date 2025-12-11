@@ -36,32 +36,59 @@ lib/
 
 ## 시작하기
 
-### 1. 의존성 설치
+### 중요: 코드 생성 먼저 실행하세요!
 
+이 프로젝트는 Freezed와 Riverpod 코드 생성을 사용합니다. 앱을 실행하기 전에 반드시 아래 단계를 따르세요:
+
+### 1. 의존성 설치 및 코드 생성
+
+**방법 1: 스크립트 사용 (추천)**
 ```bash
-flutter pub get
+./generate.sh
 ```
 
-### 2. 코드 생성
-
+**방법 2: 수동 실행**
 ```bash
+# 1. 의존성 설치
+flutter pub get
+
+# 2. 코드 생성 (Freezed, JSON Serializable, Riverpod)
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
-### 3. 앱 실행
+### 2. 앱 실행
 
 ```bash
+# Chrome에서 실행
+flutter run -d chrome
+
+# 또는 모바일 디바이스에서 실행
 flutter run
 ```
 
-## 환경 변수
-
-앱 실행 시 다음 환경 변수를 설정할 수 있습니다:
+### 3. 환경 변수 설정 (선택사항)
 
 ```bash
-flutter run --dart-define=API_BASE_URL=https://your-api.com/api/v1 \
-            --dart-define=WS_URL=wss://your-api.com/ws/chat
+flutter run -d chrome \
+  --dart-define=API_BASE_URL=https://your-api.com/api/v1 \
+  --dart-define=WS_URL=wss://your-api.com/ws/chat
 ```
+
+## 트러블슈팅
+
+### "Target of URI doesn't exist" 에러가 발생하는 경우
+
+이 에러는 Freezed와 JSON Serializable 코드가 생성되지 않아서 발생합니다.
+
+**해결 방법:**
+```bash
+flutter pub get
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+### STOMP 관련 타입 에러
+
+STOMP 관련 타입 에러는 이미 수정되었습니다. 최신 코드를 pull 받으세요.
 
 ## 주요 기능
 
