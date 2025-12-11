@@ -1,24 +1,42 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/chat_room.dart';
 import 'user_model.dart';
 
-part 'chat_room_model.freezed.dart';
-part 'chat_room_model.g.dart';
+class ChatRoomModel {
+  final int id;
+  final UserModel otherUser;
+  final String? lastMessage;
+  final DateTime? lastMessageTime;
+  final int unreadCount;
 
-@freezed
-class ChatRoomModel with _$ChatRoomModel {
-  const ChatRoomModel._();
+  const ChatRoomModel({
+    required this.id,
+    required this.otherUser,
+    this.lastMessage,
+    this.lastMessageTime,
+    this.unreadCount = 0,
+  });
 
-  const factory ChatRoomModel({
-    required int id,
-    required UserModel otherUser,
-    String? lastMessage,
-    DateTime? lastMessageTime,
-    @Default(0) int unreadCount,
-  }) = _ChatRoomModel;
+  factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
+    return ChatRoomModel(
+      id: json['id'] as int,
+      otherUser: UserModel.fromJson(json['otherUser'] as Map<String, dynamic>),
+      lastMessage: json['lastMessage'] as String?,
+      lastMessageTime: json['lastMessageTime'] != null
+          ? DateTime.parse(json['lastMessageTime'] as String)
+          : null,
+      unreadCount: json['unreadCount'] as int? ?? 0,
+    );
+  }
 
-  factory ChatRoomModel.fromJson(Map<String, dynamic> json) =>
-      _$ChatRoomModelFromJson(json);
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'otherUser': otherUser.toJson(),
+      'lastMessage': lastMessage,
+      'lastMessageTime': lastMessageTime?.toIso8601String(),
+      'unreadCount': unreadCount,
+    };
+  }
 
   ChatRoom toEntity() {
     return ChatRoom(

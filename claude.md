@@ -5,8 +5,9 @@
 - Riverpod (상태관리)
 - Dio (HTTP)
 - web_socket_channel + STOMP (실시간 채팅)
-- Firebase Cloud Messaging (푸시)
 - 배포: Android/iOS/Web 동시 빌드
+
+**참고**: Firebase Cloud Messaging (푸시 알림)은 향후 구현 예정입니다.
 
 ## 프로젝트 구조
 
@@ -74,20 +75,37 @@ onError: (error, handler) {
 ```
 
 ### 모델
-- `freezed` + `json_serializable` 사용
+- 수동으로 작성된 모델 클래스 사용
 - Request/Response 모델 분리
+- fromJson/toJson 메서드 구현
 
 ```dart
-@freezed
-class UserResponse with _$UserResponse {
-  factory UserResponse({
-    required int id,
-    required String email,
-    required String nickname,
-  }) = _UserResponse;
+class UserModel {
+  final int id;
+  final String email;
+  final String nickname;
 
-  factory UserResponse.fromJson(Map<String, dynamic> json) =>
-      _$UserResponseFromJson(json);
+  const UserModel({
+    required this.id,
+    required this.email,
+    required this.nickname,
+  });
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'] as int,
+      email: json['email'] as String,
+      nickname: json['nickname'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'nickname': nickname,
+    };
+  }
 }
 ```
 
@@ -176,24 +194,23 @@ WS     /ws/chat
 
 ```yaml
 dependencies:
-  flutter_riverpod: ^2.4.0
-  riverpod_annotation: ^2.3.0
+  flutter_riverpod: ^2.6.0
   dio: ^5.4.0
   stomp_dart_client: ^1.0.0
   web_socket_channel: ^2.4.0
-  firebase_messaging: ^14.7.0
   go_router: ^13.0.0
-  freezed_annotation: ^2.4.0
-  json_annotation: ^4.8.0
   cached_network_image: ^3.3.0
   image_picker: ^1.0.0
+  shared_preferences: ^2.2.0
+  flutter_secure_storage: ^9.0.0
 
 dev_dependencies:
-  build_runner: ^2.4.0
-  freezed: ^2.4.0
-  json_serializable: ^6.7.0
-  riverpod_generator: ^2.3.0
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
 ```
+
+**참고**: 이 프로젝트는 Freezed나 Riverpod 코드 생성을 사용하지 않습니다. 모든 모델과 Provider는 수동으로 작성되어 더 나은 호환성과 안정성을 제공합니다.
 
 ## Git 커밋
 ```

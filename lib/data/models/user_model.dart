@@ -1,25 +1,47 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/user.dart';
 
-part 'user_model.freezed.dart';
-part 'user_model.g.dart';
+class UserModel {
+  final int id;
+  final String email;
+  final String nickname;
+  final String? profileImageUrl;
+  final int? age;
+  final String? gender;
+  final String? bio;
 
-@freezed
-class UserModel with _$UserModel {
-  const UserModel._();
+  const UserModel({
+    required this.id,
+    required this.email,
+    required this.nickname,
+    this.profileImageUrl,
+    this.age,
+    this.gender,
+    this.bio,
+  });
 
-  const factory UserModel({
-    required int id,
-    required String email,
-    required String nickname,
-    String? profileImageUrl,
-    int? age,
-    String? gender,
-    String? bio,
-  }) = _UserModel;
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'] as int,
+      email: json['email'] as String,
+      nickname: json['nickname'] as String,
+      profileImageUrl: json['profileImageUrl'] as String?,
+      age: json['age'] as int?,
+      gender: json['gender'] as String?,
+      bio: json['bio'] as String?,
+    );
+  }
 
-  factory UserModel.fromJson(Map<String, dynamic> json) =>
-      _$UserModelFromJson(json);
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'nickname': nickname,
+      'profileImageUrl': profileImageUrl,
+      'age': age,
+      'gender': gender,
+      'bio': bio,
+    };
+  }
 
   User toEntity() {
     return User(
@@ -34,37 +56,82 @@ class UserModel with _$UserModel {
   }
 }
 
-@freezed
-class LoginRequest with _$LoginRequest {
-  const factory LoginRequest({
-    required String email,
-    required String password,
-  }) = _LoginRequest;
+class LoginRequest {
+  final String email;
+  final String password;
 
-  factory LoginRequest.fromJson(Map<String, dynamic> json) =>
-      _$LoginRequestFromJson(json);
+  const LoginRequest({
+    required this.email,
+    required this.password,
+  });
+
+  factory LoginRequest.fromJson(Map<String, dynamic> json) {
+    return LoginRequest(
+      email: json['email'] as String,
+      password: json['password'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'password': password,
+    };
+  }
 }
 
-@freezed
-class SignupRequest with _$SignupRequest {
-  const factory SignupRequest({
-    required String email,
-    required String password,
-    required String nickname,
-  }) = _SignupRequest;
+class SignupRequest {
+  final String email;
+  final String password;
+  final String nickname;
 
-  factory SignupRequest.fromJson(Map<String, dynamic> json) =>
-      _$SignupRequestFromJson(json);
+  const SignupRequest({
+    required this.email,
+    required this.password,
+    required this.nickname,
+  });
+
+  factory SignupRequest.fromJson(Map<String, dynamic> json) {
+    return SignupRequest(
+      email: json['email'] as String,
+      password: json['password'] as String,
+      nickname: json['nickname'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'email': email,
+      'password': password,
+      'nickname': nickname,
+    };
+  }
 }
 
-@freezed
-class AuthResponse with _$AuthResponse {
-  const factory AuthResponse({
-    required String accessToken,
-    required String refreshToken,
-    required UserModel user,
-  }) = _AuthResponse;
+class AuthResponse {
+  final String accessToken;
+  final String refreshToken;
+  final UserModel user;
 
-  factory AuthResponse.fromJson(Map<String, dynamic> json) =>
-      _$AuthResponseFromJson(json);
+  const AuthResponse({
+    required this.accessToken,
+    required this.refreshToken,
+    required this.user,
+  });
+
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    return AuthResponse(
+      accessToken: json['accessToken'] as String,
+      refreshToken: json['refreshToken'] as String,
+      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'accessToken': accessToken,
+      'refreshToken': refreshToken,
+      'user': user.toJson(),
+    };
+  }
 }

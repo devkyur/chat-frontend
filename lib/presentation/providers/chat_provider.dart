@@ -1,14 +1,11 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/chat_room.dart';
 import '../../domain/entities/chat_message.dart';
 import 'providers.dart';
 
-part 'chat_provider.g.dart';
-
-@riverpod
-class ChatRooms extends _$ChatRooms {
+class ChatRoomsNotifier extends AsyncNotifier<List<ChatRoom>> {
   @override
-  FutureOr<List<ChatRoom>> build() async {
+  Future<List<ChatRoom>> build() async {
     return await ref.watch(chatRepositoryProvider).getChatRooms();
   }
 
@@ -20,11 +17,15 @@ class ChatRooms extends _$ChatRooms {
   }
 }
 
-@riverpod
-class ChatMessages extends _$ChatMessages {
+final chatRoomsProvider =
+    AsyncNotifierProvider<ChatRoomsNotifier, List<ChatRoom>>(() {
+  return ChatRoomsNotifier();
+});
+
+class ChatMessagesNotifier extends FamilyAsyncNotifier<List<ChatMessage>, int> {
   @override
-  FutureOr<List<ChatMessage>> build(int roomId) async {
-    return await ref.watch(chatRepositoryProvider).getMessages(roomId);
+  Future<List<ChatMessage>> build(int arg) async {
+    return await ref.watch(chatRepositoryProvider).getMessages(arg);
   }
 
   Future<void> loadMore() async {
@@ -34,7 +35,7 @@ class ChatMessages extends _$ChatMessages {
     final oldestMessageId = currentMessages.last.id;
 
     final newMessages = await ref.read(chatRepositoryProvider).getMessages(
-          roomId,
+          arg,
           before: oldestMessageId,
         );
 
@@ -42,7 +43,7 @@ class ChatMessages extends _$ChatMessages {
   }
 
   Future<void> sendMessage(String content) async {
-    await ref.read(chatRepositoryProvider).sendMessage(roomId, content);
+    await ref.read(chatRepositoryProvider).sendMessage(arg, content);
   }
 
   void addMessage(ChatMessage message) {
@@ -51,7 +52,12 @@ class ChatMessages extends _$ChatMessages {
   }
 }
 
-@riverpod
-Stream<ChatMessage> chatMessageStream(ChatMessageStreamRef ref, int roomId) {
+final chatMessagesProvider = AsyncNotifierProvider.family<ChatMessagesNotifier,
+    List<ChatMessage>, int>(() {
+  return ChatMessagesNotifier();
+});
+
+final chatMessageStreamProvider =
+    StreamProvider.family<ChatMessage, int>((ref, roomId) {
   return ref.watch(chatRepositoryProvider).subscribeToRoom(roomId);
-}
+});

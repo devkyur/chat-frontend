@@ -1,13 +1,10 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/user.dart';
 import 'providers.dart';
 
-part 'auth_provider.g.dart';
-
-@riverpod
-class Auth extends _$Auth {
+class AuthNotifier extends AsyncNotifier<User?> {
   @override
-  FutureOr<User?> build() async {
+  Future<User?> build() async {
     return await ref.watch(authRepositoryProvider).getCurrentUser();
   }
 
@@ -46,3 +43,7 @@ class Auth extends _$Auth {
     });
   }
 }
+
+final authProvider = AsyncNotifierProvider<AuthNotifier, User?>(() {
+  return AuthNotifier();
+});

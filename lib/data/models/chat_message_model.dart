@@ -1,24 +1,43 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/chat_message.dart';
 
-part 'chat_message_model.freezed.dart';
-part 'chat_message_model.g.dart';
+class ChatMessageModel {
+  final int id;
+  final int roomId;
+  final int senderId;
+  final String content;
+  final DateTime createdAt;
+  final bool isRead;
 
-@freezed
-class ChatMessageModel with _$ChatMessageModel {
-  const ChatMessageModel._();
+  const ChatMessageModel({
+    required this.id,
+    required this.roomId,
+    required this.senderId,
+    required this.content,
+    required this.createdAt,
+    this.isRead = false,
+  });
 
-  const factory ChatMessageModel({
-    required int id,
-    required int roomId,
-    required int senderId,
-    required String content,
-    required DateTime createdAt,
-    @Default(false) bool isRead,
-  }) = _ChatMessageModel;
+  factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
+    return ChatMessageModel(
+      id: json['id'] as int,
+      roomId: json['roomId'] as int,
+      senderId: json['senderId'] as int,
+      content: json['content'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      isRead: json['isRead'] as bool? ?? false,
+    );
+  }
 
-  factory ChatMessageModel.fromJson(Map<String, dynamic> json) =>
-      _$ChatMessageModelFromJson(json);
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'roomId': roomId,
+      'senderId': senderId,
+      'content': content,
+      'createdAt': createdAt.toIso8601String(),
+      'isRead': isRead,
+    };
+  }
 
   ChatMessage toEntity() {
     return ChatMessage(
@@ -32,12 +51,22 @@ class ChatMessageModel with _$ChatMessageModel {
   }
 }
 
-@freezed
-class SendMessageRequest with _$SendMessageRequest {
-  const factory SendMessageRequest({
-    required String content,
-  }) = _SendMessageRequest;
+class SendMessageRequest {
+  final String content;
 
-  factory SendMessageRequest.fromJson(Map<String, dynamic> json) =>
-      _$SendMessageRequestFromJson(json);
+  const SendMessageRequest({
+    required this.content,
+  });
+
+  factory SendMessageRequest.fromJson(Map<String, dynamic> json) {
+    return SendMessageRequest(
+      content: json['content'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'content': content,
+    };
+  }
 }

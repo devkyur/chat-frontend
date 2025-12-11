@@ -16,7 +16,7 @@ class AppTheme {
         brightness: Brightness.light,
       ),
       scaffoldBackgroundColor: backgroundColor,
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         color: cardColor,
         elevation: 2,
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -1,30 +1,56 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class ApiResponse<T> {
+  final bool success;
+  final T? data;
+  final ApiError? error;
 
-part 'api_response.freezed.dart';
-part 'api_response.g.dart';
-
-@Freezed(genericArgumentFactories: true)
-class ApiResponse<T> with _$ApiResponse<T> {
-  const factory ApiResponse({
-    required bool success,
-    T? data,
-    ApiError? error,
-  }) = _ApiResponse<T>;
+  const ApiResponse({
+    required this.success,
+    this.data,
+    this.error,
+  });
 
   factory ApiResponse.fromJson(
     Map<String, dynamic> json,
     T Function(Object?) fromJsonT,
-  ) =>
-      _$ApiResponseFromJson(json, fromJsonT);
+  ) {
+    return ApiResponse<T>(
+      success: json['success'] as bool,
+      data: json['data'] != null ? fromJsonT(json['data']) : null,
+      error: json['error'] != null
+          ? ApiError.fromJson(json['error'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT) {
+    return {
+      'success': success,
+      'data': data != null ? toJsonT(data as T) : null,
+      'error': error?.toJson(),
+    };
+  }
 }
 
-@freezed
-class ApiError with _$ApiError {
-  const factory ApiError({
-    required String code,
-    required String message,
-  }) = _ApiError;
+class ApiError {
+  final String code;
+  final String message;
 
-  factory ApiError.fromJson(Map<String, dynamic> json) =>
-      _$ApiErrorFromJson(json);
+  const ApiError({
+    required this.code,
+    required this.message,
+  });
+
+  factory ApiError.fromJson(Map<String, dynamic> json) {
+    return ApiError(
+      code: json['code'] as String,
+      message: json['message'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'message': message,
+    };
+  }
 }
