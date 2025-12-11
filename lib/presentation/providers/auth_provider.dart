@@ -5,7 +5,12 @@ import 'providers.dart';
 class AuthNotifier extends AsyncNotifier<User?> {
   @override
   Future<User?> build() async {
-    return await ref.watch(authRepositoryProvider).getCurrentUser();
+    try {
+      return await ref.watch(authRepositoryProvider).getCurrentUser();
+    } catch (e) {
+      // 백엔드 연결 실패 시 null 반환 (로그인 필요)
+      return null;
+    }
   }
 
   Future<void> login(String email, String password) async {

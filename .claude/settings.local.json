@@ -10,7 +10,8 @@
       "Bash(dart compile kernel:*)",
       "Bash(git add:*)",
       "Bash(flutter create:*)",
-      "Bash(flutter run:*)"
+      "Bash(flutter run:*)",
+      "Bash(timeout 5 cat:*)"
     ]
   }
 }
