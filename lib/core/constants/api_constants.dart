@@ -1,12 +1,12 @@
 class ApiConstants {
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://api.example.com/api/v1',
+    defaultValue: 'http://localhost:8080/api/v1',
   );
 
   static const String wsUrl = String.fromEnvironment(
     'WS_URL',
-    defaultValue: 'wss://api.example.com/ws/chat',
+    defaultValue: 'wss://localhost:8080/ws/chat',
   );
 
   // Auth endpoints

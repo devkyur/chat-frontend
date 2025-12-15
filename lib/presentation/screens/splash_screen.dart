@@ -12,63 +12,75 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _isNavigated = false;
+
   @override
   void initState() {
     super.initState();
-    _checkAuth();
+    _startTimer();
   }
 
-  Future<void> _checkAuth() async {
-    // 최소 1초 대기 (스플래시 화면 표시)
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (!mounted) return;
-
-    // authProvider 상태를 watch하여 변경사항 감지
-    ref.listen<AsyncValue<User?>>(authProvider, (previous, next) {
-      if (!mounted) return;
-
-      next.whenOrNull(
-        data: (user) {
-          if (user != null) {
-            context.go('/home');
-          } else {
-            context.go('/login');
-          }
-        },
-        error: (_, __) {
-          context.go('/login');
-        },
-      );
+  void _startTimer() {
+    // 최소 2초 후에 네비게이션 시도
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted && !_isNavigated) {
+        _navigateBasedOnAuth();
+      }
     });
+  }
 
-    // 최대 3초 타임아웃 후 상태 확인
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
+  void _navigateBasedOnAuth() {
+    if (_isNavigated) return;
 
     final authState = ref.read(authProvider);
-    authState.whenOrNull(
+
+    authState.when(
       data: (user) {
         if (user != null) {
-          context.go('/home');
+          _navigate('/home');
         } else {
-          context.go('/login');
+          _navigate('/login');
         }
       },
+      loading: () {
+        // 타임아웃 후에도 로딩이면 로그인 화면으로
+        _navigate('/login');
+      },
       error: (_, __) {
-        context.go('/login');
+        _navigate('/login');
       },
     );
+  }
 
-    // 여전히 loading이면 로그인 화면으로
-    if (authState.isLoading) {
-      context.go('/login');
-    }
+  void _navigate(String route) {
+    if (!mounted || _isNavigated) return;
+    _isNavigated = true;
+    context.go(route);
   }
 
   @override
   Widget build(BuildContext context) {
+    // authProvider의 상태를 watch하여 변경사항 감지
+    ref.listen<AsyncValue<User?>>(authProvider, (previous, next) {
+      if (_isNavigated || !mounted) return;
+
+      next.when(
+        data: (user) {
+          if (user != null) {
+            _navigate('/home');
+          } else {
+            _navigate('/login');
+          }
+        },
+        loading: () {
+          // 로딩 중에는 아무것도 하지 않음
+        },
+        error: (_, __) {
+          _navigate('/login');
+        },
+      );
+    });
+
     return const Scaffold(
       body: Center(
         child: Column(

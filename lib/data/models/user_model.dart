@@ -103,7 +103,7 @@ class SignupRequest {
     return {
       'email': email,
       'password': password,
-      'nickname': nickname,
+      'name': nickname,
     };
   }
 }
