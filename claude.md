@@ -171,8 +171,10 @@ Splash → Auth Check
 ### Auth API
 ```
 POST   /api/v1/auth/signup
-  - Request: { email, password, name, phoneNumber? }
-  - Validation: password(8-20자), name(2-50자)
+  - 계정과 프로필을 함께 생성합니다
+  - 필수: email, password, name, nickname, birthDate(YYYY-MM-DD), gender(MALE|FEMALE|OTHER)
+  - 선택: phoneNumber, bio, location, minAgePreference, maxAgePreference, maxDistance
+  - Validation: password(8-20자), name(2-50자), nickname(2-50자)
   - Response: { success, data: { accessToken, refreshToken }, error }
   ⚠️ 주의: user 정보는 포함되지 않음. 로그인 후 GET /profiles/me로 조회 필요
 

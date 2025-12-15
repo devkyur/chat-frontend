@@ -114,28 +114,67 @@ class LoginRequest {
 class SignupRequest {
   final String email;
   final String password;
+  final String name;
   final String nickname;
+  final String birthDate;
+  final String gender;
+  final String? phoneNumber;
+  final String? bio;
+  final String? location;
+  final int? minAgePreference;
+  final int? maxAgePreference;
+  final int? maxDistance;
 
   const SignupRequest({
     required this.email,
     required this.password,
+    required this.name,
     required this.nickname,
+    required this.birthDate,
+    required this.gender,
+    this.phoneNumber,
+    this.bio,
+    this.location,
+    this.minAgePreference,
+    this.maxAgePreference,
+    this.maxDistance,
   });
 
   factory SignupRequest.fromJson(Map<String, dynamic> json) {
     return SignupRequest(
       email: json['email'] as String,
       password: json['password'] as String,
+      name: json['name'] as String,
       nickname: json['nickname'] as String,
+      birthDate: json['birthDate'] as String,
+      gender: json['gender'] as String,
+      phoneNumber: json['phoneNumber'] as String?,
+      bio: json['bio'] as String?,
+      location: json['location'] as String?,
+      minAgePreference: json['minAgePreference'] as int?,
+      maxAgePreference: json['maxAgePreference'] as int?,
+      maxDistance: json['maxDistance'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    final map = <String, dynamic>{
       'email': email,
       'password': password,
-      'name': nickname,
+      'name': name,
+      'nickname': nickname,
+      'birthDate': birthDate,
+      'gender': gender,
     };
+
+    if (phoneNumber != null) map['phoneNumber'] = phoneNumber;
+    if (bio != null) map['bio'] = bio;
+    if (location != null) map['location'] = location;
+    if (minAgePreference != null) map['minAgePreference'] = minAgePreference;
+    if (maxAgePreference != null) map['maxAgePreference'] = maxAgePreference;
+    if (maxDistance != null) map['maxDistance'] = maxDistance;
+
+    return map;
   }
 }
 

@@ -12,14 +12,32 @@ class AuthApi {
   Future<void> signup({
     required String email,
     required String password,
+    required String name,
     required String nickname,
+    required String birthDate,
+    required String gender,
+    String? phoneNumber,
+    String? bio,
+    String? location,
+    int? minAgePreference,
+    int? maxAgePreference,
+    int? maxDistance,
   }) async {
     final response = await _client.post(
       ApiConstants.signup,
       data: SignupRequest(
         email: email,
         password: password,
+        name: name,
         nickname: nickname,
+        birthDate: birthDate,
+        gender: gender,
+        phoneNumber: phoneNumber,
+        bio: bio,
+        location: location,
+        minAgePreference: minAgePreference,
+        maxAgePreference: maxAgePreference,
+        maxDistance: maxDistance,
       ).toJson(),
     );
 
