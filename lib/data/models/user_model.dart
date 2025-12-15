@@ -2,56 +2,87 @@ import '../../domain/entities/user.dart';
 
 class UserModel {
   final int id;
-  final String email;
+  final int userId;
   final String nickname;
-  final String? profileImageUrl;
-  final int? age;
+  final String? birthDate;
   final String? gender;
   final String? bio;
+  final String? location;
+  final List<String> imageUrls;
+  final List<String> interests;
+  final int? minAgePreference;
+  final int? maxAgePreference;
+  final int? maxDistance;
 
   const UserModel({
     required this.id,
-    required this.email,
+    required this.userId,
     required this.nickname,
-    this.profileImageUrl,
-    this.age,
+    this.birthDate,
     this.gender,
     this.bio,
+    this.location,
+    this.imageUrls = const [],
+    this.interests = const [],
+    this.minAgePreference,
+    this.maxAgePreference,
+    this.maxDistance,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] as int,
-      email: json['email'] as String,
+      userId: json['userId'] as int,
       nickname: json['nickname'] as String,
-      profileImageUrl: json['profileImageUrl'] as String?,
-      age: json['age'] as int?,
+      birthDate: json['birthDate'] as String?,
       gender: json['gender'] as String?,
       bio: json['bio'] as String?,
+      location: json['location'] as String?,
+      imageUrls: (json['imageUrls'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      interests: (json['interests'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      minAgePreference: json['minAgePreference'] as int?,
+      maxAgePreference: json['maxAgePreference'] as int?,
+      maxDistance: json['maxDistance'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'email': email,
+      'userId': userId,
       'nickname': nickname,
-      'profileImageUrl': profileImageUrl,
-      'age': age,
+      'birthDate': birthDate,
       'gender': gender,
       'bio': bio,
+      'location': location,
+      'imageUrls': imageUrls,
+      'interests': interests,
+      'minAgePreference': minAgePreference,
+      'maxAgePreference': maxAgePreference,
+      'maxDistance': maxDistance,
     };
   }
 
   User toEntity() {
     return User(
       id: id,
-      email: email,
+      userId: userId,
       nickname: nickname,
-      profileImageUrl: profileImageUrl,
-      age: age,
+      birthDate: birthDate,
       gender: gender,
       bio: bio,
+      location: location,
+      imageUrls: imageUrls,
+      interests: interests,
+      minAgePreference: minAgePreference,
+      maxAgePreference: maxAgePreference,
+      maxDistance: maxDistance,
     );
   }
 }
@@ -108,22 +139,19 @@ class SignupRequest {
   }
 }
 
-class AuthResponse {
+class TokenResponse {
   final String accessToken;
   final String refreshToken;
-  final UserModel user;
 
-  const AuthResponse({
+  const TokenResponse({
     required this.accessToken,
     required this.refreshToken,
-    required this.user,
   });
 
-  factory AuthResponse.fromJson(Map<String, dynamic> json) {
-    return AuthResponse(
+  factory TokenResponse.fromJson(Map<String, dynamic> json) {
+    return TokenResponse(
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String,
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
     );
   }
 
@@ -131,7 +159,6 @@ class AuthResponse {
     return {
       'accessToken': accessToken,
       'refreshToken': refreshToken,
-      'user': user.toJson(),
     };
   }
 }

@@ -159,26 +159,125 @@ Splash → Auth Check
 
 ## Backend API
 
+### API 문서
+- **Swagger UI**: `http://localhost:8080/swagger-ui/index.html`
+- **OpenAPI JSON**: `http://localhost:8080/v3/api-docs`
+- **최신 스펙 확인**: `curl http://localhost:8080/v3/api-docs`
+
 ### Base
-- URL: `https://{domain}/api/v1`
+- URL: `http://localhost:8080/api/v1` (개발환경)
 - 인증: `Authorization: Bearer {accessToken}`
 
-### 주요 엔드포인트
+### Auth API
 ```
-POST   /auth/signup, /auth/login, /auth/refresh, /auth/logout
-GET    /profiles/me
-PATCH  /profiles/me
-GET    /matches/candidates
-POST   /matches/{id}/like, /matches/{id}/pass
-GET    /chat/rooms
-GET    /chat/rooms/{roomId}/messages
-WS     /ws/chat
+POST   /api/v1/auth/signup
+  - Request: { email, password, name, phoneNumber? }
+  - Validation: password(8-20자), name(2-50자)
+  - Response: { success, data: { accessToken, refreshToken }, error }
+  ⚠️ 주의: user 정보는 포함되지 않음. 로그인 후 GET /profiles/me로 조회 필요
+
+POST   /api/v1/auth/login
+  - Request: { email, password }
+  - Response: { success, data: { accessToken, refreshToken }, error }
+  ⚠️ 주의: user 정보는 포함되지 않음. 로그인 후 GET /profiles/me로 조회 필요
+
+POST   /api/v1/auth/refresh
+  - Request: { refreshToken }
+  - Response: { success, data: { accessToken, refreshToken }, error }
+
+POST   /api/v1/auth/logout
+  - Headers: Authorization: Bearer {accessToken}
+  - Response: { success, data: null, error }
+```
+
+### Profile API
+```
+POST   /api/v1/profiles
+  - Request: { nickname, birthDate, gender(MALE|FEMALE|OTHER), bio?, location? }
+  - Response: { success, data: ProfileResponse, error }
+
+GET    /api/v1/profiles/me
+  - Headers: Authorization: Bearer {accessToken}
+  - Response: { success, data: ProfileResponse, error }
+
+GET    /api/v1/profiles/{profileId}
+  - Response: { success, data: ProfileResponse, error }
+
+PATCH  /api/v1/profiles/me
+  - Request: { nickname?, bio?, location?, imageUrls?, interests?,
+              minAgePreference?, maxAgePreference?, maxDistance? }
+  - Response: { success, data: ProfileResponse, error }
+
+ProfileResponse 구조:
+{
+  id, userId, nickname, birthDate, gender, bio, location,
+  imageUrls: string[], interests: string[],
+  minAgePreference, maxAgePreference, maxDistance
+}
+```
+
+### Match API
+```
+GET    /api/v1/matches
+  - Response: { success, data: [MatchResponse], error }
+
+GET    /api/v1/matches/candidates
+  - Response: { success, data: [ProfileResponse], error }
+
+POST   /api/v1/matches/{profileId}/like
+  - Response: { success, data: MatchResponse, error }
+  - MatchResponse.isMatched: true면 매칭 성사
+
+POST   /api/v1/matches/{profileId}/pass
+  - Response: { success, data: MatchResponse, error }
+
+MatchResponse 구조:
+{
+  id, fromProfileId, toProfileId,
+  action: "LIKE" | "PASS",
+  isMatched: boolean,
+  createdAt
+}
+```
+
+### Chat API
+```
+GET    /api/v1/chat/rooms
+  - Response: { success, data: [ChatRoomResponse], error }
+
+POST   /api/v1/chat/rooms?matchId={matchId}
+  - Response: { success, data: ChatRoomResponse, error }
+
+GET    /api/v1/chat/rooms/{roomId}/messages?page=0&size=20
+  - Response: { success, data: PageChatMessageResponse, error }
+
+ChatRoomResponse: { id, matchId, createdAt }
+ChatMessageResponse: { id, chatRoomId, senderProfileId, content, type, isRead, createdAt }
+MessageType: TEXT | IMAGE | SYSTEM
+```
+
+### Notification API
+```
+POST   /api/v1/notifications/tokens
+  - Request: { token }  # FCM token
+  - Response: { success, data: null, error }
+
+DELETE /api/v1/notifications/tokens
+  - Request: { token }
+  - Response: { success, data: null, error }
 ```
 
 ### 응답 형식
 ```json
 { "success": true, "data": { ... }, "error": null }
 { "success": false, "data": null, "error": { "code": "U001", "message": "..." } }
+```
+
+### WebSocket (STOMP)
+```
+연결: ws://localhost:8080/ws/chat
+구독: /topic/chat/{roomId}
+발행: /app/chat/{roomId}/send
 ```
 
 ## 네이밍 규칙

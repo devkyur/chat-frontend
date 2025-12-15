@@ -12,17 +12,18 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._authApi, this._profileApi);
 
   @override
-  Future<User> signup({
+  Future<User?> signup({
     required String email,
     required String password,
     required String nickname,
   }) async {
-    final userModel = await _authApi.signup(
+    await _authApi.signup(
       email: email,
       password: password,
       nickname: nickname,
     );
-    return userModel.toEntity();
+    // 회원가입 후 프로필이 없으므로 null 반환
+    return null;
   }
 
   @override

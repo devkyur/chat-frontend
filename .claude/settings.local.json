@@ -12,7 +12,9 @@
       "Bash(flutter create:*)",
       "Bash(flutter run:*)",
       "Bash(timeout 5 cat:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:localhost)",
+      "Bash(curl:*)"
     ]
   }
 }

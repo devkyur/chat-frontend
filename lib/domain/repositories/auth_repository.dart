@@ -1,7 +1,7 @@
 import '../entities/user.dart';
 
 abstract class AuthRepository {
-  Future<User> signup({
+  Future<User?> signup({
     required String email,
     required String password,
     required String nickname,

@@ -9,7 +9,7 @@ class AuthApi {
 
   AuthApi(this._client);
 
-  Future<UserModel> signup({
+  Future<void> signup({
     required String email,
     required String password,
     required String nickname,
@@ -32,10 +32,8 @@ class AuthApi {
       throw Exception(apiResponse.error?.message ?? 'Signup failed');
     }
 
-    final authResponse = AuthResponse.fromJson(apiResponse.data!);
-    await _saveTokens(authResponse);
-
-    return authResponse.user;
+    final tokenResponse = TokenResponse.fromJson(apiResponse.data!);
+    await _saveTokens(tokenResponse);
   }
 
   Future<UserModel> login({
@@ -59,10 +57,23 @@ class AuthApi {
       throw Exception(apiResponse.error?.message ?? 'Login failed');
     }
 
-    final authResponse = AuthResponse.fromJson(apiResponse.data!);
-    await _saveTokens(authResponse);
+    final tokenResponse = TokenResponse.fromJson(apiResponse.data!);
+    await _saveTokens(tokenResponse);
 
-    return authResponse.user;
+    // 로그인 후 프로필 조회
+    final profileResponse = await _client.get(ApiConstants.profileMe);
+
+    final profileApiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
+      profileResponse.data,
+      (json) => json as Map<String, dynamic>,
+    );
+
+    if (!profileApiResponse.success || profileApiResponse.data == null) {
+      throw Exception(
+          profileApiResponse.error?.message ?? 'Failed to get profile');
+    }
+
+    return UserModel.fromJson(profileApiResponse.data!);
   }
 
   Future<void> logout() async {
@@ -73,14 +84,14 @@ class AuthApi {
     }
   }
 
-  Future<void> _saveTokens(AuthResponse authResponse) async {
+  Future<void> _saveTokens(TokenResponse tokenResponse) async {
     await SecureStorage.write(
       ApiConstants.accessTokenKey,
-      authResponse.accessToken,
+      tokenResponse.accessToken,
     );
     await SecureStorage.write(
       ApiConstants.refreshTokenKey,
-      authResponse.refreshToken,
+      tokenResponse.refreshToken,
     );
   }
 }

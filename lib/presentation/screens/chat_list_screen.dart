@@ -49,10 +49,10 @@ class ChatListScreen extends ConsumerWidget {
                 final room = rooms[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: room.otherUser.profileImageUrl != null
-                        ? NetworkImage(room.otherUser.profileImageUrl!)
+                    backgroundImage: room.otherUser.imageUrls.isNotEmpty
+                        ? NetworkImage(room.otherUser.imageUrls.first)
                         : null,
-                    child: room.otherUser.profileImageUrl == null
+                    child: room.otherUser.imageUrls.isEmpty
                         ? Text(room.otherUser.nickname[0].toUpperCase())
                         : null,
                   ),

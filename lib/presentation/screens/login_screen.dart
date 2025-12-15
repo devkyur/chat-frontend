@@ -35,15 +35,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           );
 
       if (mounted) {
-        final authState = ref.read(authProvider);
-        if (authState.value != null) {
-          context.go('/home');
-        }
+        // 로그인 성공 시 홈 화면으로 이동
+        context.go('/home');
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('로그인 실패: ${e.toString()}')),
+          SnackBar(
+            content: Text('로그인 실패: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {

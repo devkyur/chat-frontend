@@ -57,10 +57,10 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 32),
                 CircleAvatar(
                   radius: 60,
-                  backgroundImage: user.profileImageUrl != null
-                      ? NetworkImage(user.profileImageUrl!)
+                  backgroundImage: user.imageUrls.isNotEmpty
+                      ? NetworkImage(user.imageUrls.first)
                       : null,
-                  child: user.profileImageUrl == null
+                  child: user.imageUrls.isEmpty
                       ? Text(
                           user.nickname[0].toUpperCase(),
                           style: const TextStyle(fontSize: 40),
@@ -76,13 +76,14 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  user.email,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
+                if (user.location != null)
+                  Text(
+                    user.location!,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
                   ),
-                ),
                 const SizedBox(height: 32),
                 if (user.bio != null)
                   Padding(

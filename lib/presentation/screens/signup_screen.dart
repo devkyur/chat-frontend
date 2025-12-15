@@ -38,15 +38,22 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           );
 
       if (mounted) {
-        final authState = ref.read(authProvider);
-        if (authState.value != null) {
-          context.go('/home');
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('회원가입 성공! 로그인해주세요.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // 회원가입 성공 후 로그인 화면으로 이동
+        context.go('/login');
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('회원가입 실패: ${e.toString()}')),
+          SnackBar(
+            content: Text('회원가입 실패: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
