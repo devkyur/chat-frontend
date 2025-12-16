@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/theme/app_theme.dart';
 import '../../domain/entities/chat_message.dart';
 import '../providers/auth_provider.dart';
 import '../providers/chat_provider.dart';
@@ -50,6 +51,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
   Widget build(BuildContext context) {
     final messagesAsync = ref.watch(chatMessagesProvider(widget.roomId));
     final currentUser = ref.watch(authProvider).value;
+    final colorScheme = context.colorScheme;
 
     // Listen to real-time messages from WebSocket
     ref.listen<AsyncValue<ChatMessage>>(
@@ -96,14 +98,16 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: isMe
-                              ? const Color(0xFFFF4458)
-                              : Colors.grey[300],
+                              ? colorScheme.primary
+                              : colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           message.content,
                           style: TextStyle(
-                            color: isMe ? Colors.white : Colors.black87,
+                            color: isMe
+                                ? colorScheme.onPrimary
+                                : colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -118,10 +122,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colorScheme.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.2),
+                  color: colorScheme.shadow.withValues(alpha: 0.1),
                   spreadRadius: 1,
                   blurRadius: 3,
                   offset: const Offset(0, -1),
@@ -140,7 +144,7 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: Colors.grey[100],
+                      fillColor: colorScheme.surfaceContainerHighest,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
@@ -151,9 +155,9 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                 ),
                 const SizedBox(width: 8),
                 CircleAvatar(
-                  backgroundColor: const Color(0xFFFF4458),
+                  backgroundColor: colorScheme.primary,
                   child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
+                    icon: Icon(Icons.send, color: colorScheme.onPrimary),
                     onPressed: _sendMessage,
                   ),
                 ),

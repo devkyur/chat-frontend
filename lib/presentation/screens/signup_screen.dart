@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
@@ -55,11 +56,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final colorScheme = context.colorScheme;
+
     if (_selectedGender == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('성별을 선택해주세요'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('성별을 선택해주세요'),
+          backgroundColor: colorScheme.error,
         ),
       );
       return;
@@ -79,12 +82,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('회원가입 성공! 로그인해주세요.'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('회원가입 성공! 로그인해주세요.'),
+            backgroundColor: Colors.green.shade600,
           ),
         );
-        // 회원가입 성공 후 로그인 화면으로 이동
         context.go('/login');
       }
     } catch (e) {
@@ -92,7 +94,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('회원가입 실패: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.colorScheme.error,
           ),
         );
       }
@@ -105,6 +107,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = context.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -252,13 +256,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleSignup,
                   child: _isLoading
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              colorScheme.onPrimary,
+                            ),
                           ),
                         )
                       : const Text('가입하기'),

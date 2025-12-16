@@ -1,33 +1,59 @@
 import 'package:flutter/material.dart';
 
+/// 앱 전체에서 사용되는 테마 정의
+///
+/// 사용법:
+/// - 색상: Theme.of(context).colorScheme.primary
+/// - 또는 extension: context.colorScheme.primary
 class AppTheme {
+  AppTheme._();
+
+  // 기본 색상 팔레트
   static const Color primaryColor = Color(0xFFFF4458);
   static const Color secondaryColor = Color(0xFFFF6B7A);
   static const Color backgroundColor = Color(0xFFFAFAFA);
-  static const Color cardColor = Colors.white;
-  static const Color textPrimaryColor = Color(0xFF212121);
-  static const Color textSecondaryColor = Color(0xFF757575);
+  static const Color surfaceColor = Colors.white;
+  static const Color errorColor = Color(0xFFE53935);
+
+  // 텍스트 색상
+  static const Color textPrimary = Color(0xFF212121);
+  static const Color textSecondary = Color(0xFF757575);
+  static const Color textOnPrimary = Colors.white;
+
+  // 기타 색상
+  static const Color dividerColor = Color(0xFFE0E0E0);
+  static const Color disabledColor = Color(0xFFBDBDBD);
 
   static ThemeData get lightTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: primaryColor,
+      brightness: Brightness.light,
+      primary: primaryColor,
+      secondary: secondaryColor,
+      surface: surfaceColor,
+      error: errorColor,
+      onPrimary: textOnPrimary,
+      onSecondary: textOnPrimary,
+      onSurface: textPrimary,
+      onError: textOnPrimary,
+    );
+
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
-        brightness: Brightness.light,
-      ),
+      colorScheme: colorScheme,
       scaffoldBackgroundColor: backgroundColor,
       cardTheme: const CardThemeData(
-        color: cardColor,
+        color: surfaceColor,
         elevation: 2,
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: cardColor,
+        backgroundColor: surfaceColor,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: textPrimaryColor),
+        iconTheme: IconThemeData(color: textPrimary),
         titleTextStyle: TextStyle(
-          color: textPrimaryColor,
+          color: textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
@@ -51,7 +77,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
+          foregroundColor: textOnPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -71,6 +97,23 @@ class AppTheme {
           ),
         ),
       ),
+      dividerTheme: const DividerThemeData(
+        color: dividerColor,
+        thickness: 1,
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
     );
   }
+}
+
+/// BuildContext extension for easy theme access
+extension ThemeExtension on BuildContext {
+  ThemeData get theme => Theme.of(this);
+  ColorScheme get colorScheme => Theme.of(this).colorScheme;
+  TextTheme get textTheme => Theme.of(this).textTheme;
 }

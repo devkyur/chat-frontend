@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -9,6 +11,7 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authAsync = ref.watch(authProvider);
+    final colorScheme = context.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +61,7 @@ class ProfileScreen extends ConsumerWidget {
                 CircleAvatar(
                   radius: 60,
                   backgroundImage: user.imageUrls.isNotEmpty
-                      ? NetworkImage(user.imageUrls.first)
+                      ? CachedNetworkImageProvider(user.imageUrls.first)
                       : null,
                   child: user.imageUrls.isEmpty
                       ? Text(
@@ -79,9 +82,9 @@ class ProfileScreen extends ConsumerWidget {
                 if (user.location != null)
                   Text(
                     user.location!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
-                      color: Colors.grey,
+                      color: colorScheme.outline,
                     ),
                   ),
                 const SizedBox(height: 32),
