@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_theme.dart';
 import '../../domain/entities/user.dart';
 import '../providers/auth_provider.dart';
 
@@ -21,7 +22,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   void _startTimer() {
-    // 최소 2초 후에 네비게이션 시도
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted && !_isNavigated) {
         _navigateBasedOnAuth();
@@ -43,7 +43,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         }
       },
       loading: () {
-        // 타임아웃 후에도 로딩이면 로그인 화면으로
         _navigate('/login');
       },
       error: (_, __) {
@@ -60,7 +59,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // authProvider의 상태를 watch하여 변경사항 감지
+    final colorScheme = context.colorScheme;
+
     ref.listen<AsyncValue<User?>>(authProvider, (previous, next) {
       if (_isNavigated || !mounted) return;
 
@@ -72,16 +72,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             _navigate('/login');
           }
         },
-        loading: () {
-          // 로딩 중에는 아무것도 하지 않음
-        },
+        loading: () {},
         error: (_, __) {
           _navigate('/login');
         },
       );
     });
 
-    return const Scaffold(
+    return Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -89,18 +87,18 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             Icon(
               Icons.favorite,
               size: 80,
-              color: Color(0xFFFF4458),
+              color: colorScheme.primary,
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Dating App',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 32),
-            CircularProgressIndicator(),
+            const SizedBox(height: 32),
+            const CircularProgressIndicator(),
           ],
         ),
       ),

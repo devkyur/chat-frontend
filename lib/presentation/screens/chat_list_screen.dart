@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/theme/app_theme.dart';
 import '../providers/chat_provider.dart';
 
 class ChatListScreen extends ConsumerWidget {
@@ -9,6 +11,7 @@ class ChatListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final chatRoomsAsync = ref.watch(chatRoomsProvider);
+    final colorScheme = context.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -17,21 +20,21 @@ class ChatListScreen extends ConsumerWidget {
       body: chatRoomsAsync.when(
         data: (rooms) {
           if (rooms.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.chat_bubble_outline,
                     size: 100,
-                    color: Colors.grey,
+                    color: colorScheme.outline,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     '채팅방이 없습니다',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.grey,
+                      color: colorScheme.outline,
                     ),
                   ),
                 ],
@@ -50,7 +53,9 @@ class ChatListScreen extends ConsumerWidget {
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundImage: room.otherUser.imageUrls.isNotEmpty
-                        ? NetworkImage(room.otherUser.imageUrls.first)
+                        ? CachedNetworkImageProvider(
+                            room.otherUser.imageUrls.first,
+                          )
                         : null,
                     child: room.otherUser.imageUrls.isEmpty
                         ? Text(room.otherUser.nickname[0].toUpperCase())
@@ -65,11 +70,11 @@ class ChatListScreen extends ConsumerWidget {
                   trailing: room.unreadCount > 0
                       ? CircleAvatar(
                           radius: 12,
-                          backgroundColor: const Color(0xFFFF4458),
+                          backgroundColor: colorScheme.primary,
                           child: Text(
                             '${room.unreadCount}',
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: colorScheme.onPrimary,
                               fontSize: 12,
                             ),
                           ),
